@@ -1,23 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Navigate, Routes, Route } from "react-router-dom";
+import LoginPage from "scenes/loginPage/index";
+import HomePage from "scenes/homePage/index";
+import ProfilePage from "scenes/profilePage/index";
+import { useMemo } from "react";
+import { useSelector } from "react-redux";
+import { CssBaseline, ThemeProvider } from "@mui/material";
+import { createTheme } from "@mui/material";
+import { themeSettings } from "./theme";
 
 function App() {
+  const mode = useSelector((state) => state.mode);
+  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+  const isAuth = Boolean(useSelector((state) => state.token));
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Routes>
+          <Route path="/" element={<LoginPage />}></Route>
+          <Route 
+          path="/home" 
+          element={isAuth ? <HomePage /> : <Navigate to="/"/> }></Route>
+          {/* for the profile path we need the userid for specific profile-params given to backend */}
+          <Route 
+          path="/profile/:userId" 
+          element={ isAuth ? <ProfilePage /> : <Navigate to="/" /> }></Route>
+        </Routes>
+        </ThemeProvider>
+      </BrowserRouter>
     </div>
   );
 }
